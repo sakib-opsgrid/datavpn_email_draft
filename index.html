@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DATA VPN Health Summary — Email Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app">
+
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-mark">▣</span>
+        <div>
+          <div class="logo-title">DATA VPN Monitor</div>
+          <div class="logo-sub">Infozillion Teletech BD Ltd. — Service Assurance</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-main">
+
+    <!-- LEFT: Input Panel -->
+    <section class="panel panel-input">
+      <div class="panel-header">
+        <span class="panel-num">01</span>
+        <h2>Input</h2>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Mail Date <span class="field-hint">(data = previous day → 15 days back)</span></label>
+        <input type="date" id="mailDate" class="field-input" />
+        <div class="date-range-display" id="dateRangeDisplay">—</div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Paste Sheet Data <span class="field-hint">(date TAB operator, one row = 1 hit)</span></label>
+        <textarea id="rawData" class="field-textarea" placeholder="2026-06-03&#9;Robi&#10;2026-06-03&#9;Grameenphone&#10;2026-06-02&#9;Robi&#10;..."></textarea>
+        <div class="row-count" id="rowCount">0 rows detected</div>
+      </div>
+
+      <button class="btn-generate" id="btnGenerate" onclick="generate()">
+        <span class="btn-icon">⟶</span> Generate Email Draft
+      </button>
+
+      <div class="error-msg" id="errorMsg"></div>
+    </section>
+
+    <!-- RIGHT: Output Panel -->
+    <section class="panel panel-output" id="outputPanel">
+      <div class="panel-header">
+        <span class="panel-num">02</span>
+        <h2>Email Draft</h2>
+        <button class="btn-copy" id="btnCopy" onclick="copyEmail()" style="display:none;">
+          ⎘ Copy Email
+        </button>
+      </div>
+
+      <div class="empty-state" id="emptyState">
+        <div class="empty-icon">◫</div>
+        <p>Paste your data and click<br><strong>Generate Email Draft</strong></p>
+      </div>
+
+      <!-- Preview (for display) -->
+      <div class="email-preview" id="emailPreview" style="display:none;">
+        <div class="preview-subject" id="previewSubject"></div>
+        <div class="preview-body">
+          <p>Dear Concerned,</p>
+          <p id="previewIntro"></p>
+          <div class="preview-table-wrap">
+            <div class="preview-table-title" id="previewTableTitle"></div>
+            <div class="preview-period" id="previewPeriod"></div>
+            <table class="preview-table" id="previewTable"></table>
+          </div>
+          <p class="preview-regards">Best Regards,<br>
+          <span id="sigName"></span><br>
+          <strong>Senior Engineer, Service Assurance</strong><br>
+          <span class="sig-company">Infozillion Teletech BD Ltd.</span><br>
+          Hosaf High Tower, 12th Floor,<br>
+          9 Mohakhali C/A, Dhaka-1212, Bangladesh</p>
+        </div>
+      </div>
+
+      <!-- Hidden HTML for copy (Gmail-compatible) -->
+      <div id="copySource" style="display:none;"></div>
+    </section>
+
+  </main>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
