@@ -1,71 +1,133 @@
-# DATA VPN Health Summary — Email Generator
+# 📡 DATA VPN Health Summary — Email Generator
 
-A lightweight browser-based tool for **Infozillion Teletech BD Ltd. — Service Assurance** team to generate professional email drafts for DATA VPN (P2P) health summaries.
-
-## Features
-
-- Paste raw sheet data (date + operator, tab-separated)
-- Automatically calculates last 15 days window based on mail date
-- Computes per-operator **Total Hits**, **Daily Avg** (blank days excluded), and **Remark**
-- One-click **Copy Email** — pastes directly into Gmail with table formatting intact
-- No backend, no dependencies — runs entirely in the browser
-
-## Remark Scale
-
-| Floor of Daily Avg | Remark |
-|--------------------|--------|
-| 2 | Normal |
-| 3 – 4 | Higher than Normal |
-| 5 – 6 | Moderately Higher than Normal |
-| > 6 | Significantly Higher than Normal |
-
-## Date Logic
-
-If you are sending the mail on **5 June**, the tool uses data from **21 May – 4 June** (previous day, 15 days back).
-
-## Data Format
-
-Paste from Google Sheet. Each row = 1 hit event:
-
-```
-2026-06-03	Robi
-2026-06-03	Grameenphone
-2026-06-02	Robi
-...
-```
-
-Supported operators: `Grameenphone`, `Robi`, `Teletalk`, `Banglalink`
-
-## How to Use
-
-1. Open `index.html` in any browser (or visit the GitHub Pages URL)
-2. Select the **Mail Date** (the date you are sending the email)
-3. Paste the last 15+ days of sheet data into the text area
-4. Click **Generate Email Draft**
-5. Click **⎘ Copy Email**
-6. Open Gmail → Compose → **Ctrl+V**
-
-## Deployment (GitHub Pages)
-
-1. Push this repository to GitHub
-2. Go to **Settings → Pages**
-3. Set source to `main` branch, `/ (root)` folder
-4. Your tool will be live at `https://<your-username>.github.io/<repo-name>/`
-
-## Files
-
-```
-├── index.html   — Main HTML structure
-├── style.css    — Styling
-├── app.js       — Logic: parsing, calculation, copy
-└── README.md    — This file
-```
-
-## Average Calculation
-
-- **Per operator**: Total hits ÷ number of days that operator had at least 1 hit (blank days excluded)
-- **Total row**: Grand total hits ÷ number of days where any operator had data
+> A professional internal tool for the **Service Assurance** team at **Infozillion Teletech BD Ltd.** to instantly generate formatted email reports on DATA VPN (P2P) network health across all MNO operators.
 
 ---
 
-Infozillion Teletech BD Ltd. — Service Assurance Team
+## ✨ Overview
+
+Every day, the Service Assurance team monitors DATA VPN fluctuations across four mobile network operators — Grameenphone, Robi, Teletalk, and Banglalink. This tool eliminates manual email writing by turning raw sheet data into a professionally formatted, Gmail-ready email draft in seconds.
+
+---
+
+## 🚀 Features
+
+- **Zero setup** — runs entirely in the browser, no installation needed
+- **Smart date detection** — automatically reads the data period from pasted data
+- **Per-operator analytics** — Total Hits, Daily Average, and health Remark for each MNO
+- **Blank day handling** — days with no data are excluded from average calculation
+- **One-click copy** — copies rich HTML directly to clipboard, pastes into Gmail with table intact
+- **Personalized signature** — enter your name once, it appears in every email
+- **Responsive design** — works on desktop and mobile
+
+---
+
+## 📊 Remark Scale
+
+Health status is determined by the **floor** of the daily average:
+
+| Daily Average (floored) | Remark |
+|---|---|
+| ≤ 2 | ✅ Normal |
+| 3 – 4 | 🟡 Higher than Normal |
+| 5 – 6 | 🟠 Moderately Higher than Normal |
+| > 6 | 🔴 Significantly Higher than Normal |
+
+---
+
+## 📋 How to Use
+
+**Step 1** — Enter your name in the **Your Name** field
+
+**Step 2** — Go to your Google Sheet, select the last 15+ days of DATA VPN rows, and copy
+
+**Step 3** — Paste into the **Sheet Data** textarea. The tool will auto-detect the date range
+
+**Step 4** — Click **Generate Email Draft**
+
+**Step 5** — Click **⎘ Copy Email**, then open Gmail → Compose → `Ctrl+V`
+
+---
+
+## 📁 Data Format
+
+Each row represents **one hit event**. Format: `date` + `TAB` + `operator`
+
+```
+2026-06-03    Robi
+2026-06-03    Grameenphone
+2026-06-02    Robi
+2026-06-02    Teletalk
+2026-06-01    Banglalink
+```
+
+**Supported operators:** `Grameenphone` · `Robi` · `Teletalk` · `Banglalink`
+
+---
+
+## 🌐 Deployment (GitHub Pages)
+
+```bash
+# 1. Clone or upload this repo to GitHub
+# 2. Go to Settings → Pages
+# 3. Source: Deploy from branch → main → / (root)
+# 4. Save — your tool is live at:
+
+https://<your-username>.github.io/<repo-name>/
+```
+
+---
+
+## 🗂 Project Structure
+
+```
+vpn-tool/
+├── index.html     UI layout and structure
+├── style.css      Styling and responsive design
+├── app.js         Data parsing, calculations, copy logic
+└── README.md      Documentation
+```
+
+---
+
+## ⚙️ Average Calculation Logic
+
+| Metric | Formula |
+|---|---|
+| Per-operator Daily Avg | Total hits ÷ days with at least 1 hit |
+| Total row Daily Avg | Grand total hits ÷ days where any operator had data |
+| Remark | Based on `Math.floor(avg)` using the scale above |
+
+---
+
+## 📬 Email Output Example
+
+The generated email follows this structure:
+
+```
+Subject: DATA VPN (P2P) Health Summary | Last 15 Days (20 May 2026 – 03 Jun 2026)
+
+Dear Concerned,
+
+Please find below the Network Fluctuation (P2P / DATA VPN) Health Summary...
+
+┌─────────────────────┬────────────┬───────────┬──────────────────────────────┐
+│ Operator            │ Total Hits │ Daily Avg │ Remark                       │
+├─────────────────────┼────────────┼───────────┼──────────────────────────────┤
+│ Grameenphone (GP)   │     47     │    4.3    │ Higher than Normal           │
+│ Robi (RB)           │     71     │    6.5    │ Significantly Higher than... │
+│ Teletalk (TT)       │     26     │    2.6    │ Normal                       │
+│ Banglalink (BL)     │     23     │    2.9    │ Normal                       │
+├─────────────────────┼────────────┼───────────┼──────────────────────────────┤
+│ Total               │    167     │   13.4    │ Significantly Higher than... │
+└─────────────────────┴────────────┴───────────┴──────────────────────────────┘
+
+Best Regards,
+Najmaz Sakib
+Senior Engineer, Service Assurance
+Infozillion Teletech BD Ltd.
+```
+
+---
+
+© 2026 Najmaz Sakib · Infozillion Teletech BD Ltd.
