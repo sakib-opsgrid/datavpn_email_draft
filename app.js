@@ -199,8 +199,8 @@ function buildCopySource({ tableRows, totals, senderName }) {
   </table>
   <p style="margin:24px 0 0;${fs}">Best Regards,</p>
   <p style="margin:14px 0 0;${fs}font-weight:bold;">${senderName}</p>
-  <p style="margin:0;${fs}font-weight:bold;">Senior Engineer, Service Assurance</p>
-  <p style="margin:0;${fs}font-weight:bold;">Infozillion Teletech BD Ltd.</p>
+  <p style="margin:0;${fs}">Senior Engineer, Service Assurance</p>
+  <p style="margin:0;${fs}">Infozillion Teletech BD Ltd.</p>
   <p style="margin:0;${fs}">Hosaf High Tower, 12th Floor,<br>9 Mohakhali C/A, Dhaka-1212, Bangladesh</p>
 </div>`;
   document.getElementById('copySource').innerHTML = html;
