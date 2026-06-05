@@ -24,7 +24,6 @@ body {
   font-size: 14px;
 }
 
-/* HEADER */
 .app-header {
   background: var(--navy);
   padding: 0 32px;
@@ -39,18 +38,16 @@ body {
 .logo-title { font-size: 15px; font-weight: 600; color: #fff; letter-spacing: 0.01em; }
 .logo-sub { font-size: 11px; color: rgba(255,255,255,0.55); margin-top: 1px; }
 
-/* MAIN LAYOUT */
 .app-main {
   display: grid;
   grid-template-columns: 380px 1fr;
   gap: 24px;
   padding: 28px 32px;
   min-height: calc(100vh - 56px);
-  max-width: 1200px;
+  max-width: 1300px;
   margin: 0 auto;
 }
 
-/* PANELS */
 .panel {
   background: var(--surface);
   border-radius: var(--radius);
@@ -85,14 +82,8 @@ body {
   flex: 1;
 }
 
-/* FIELDS */
 .field-group { display: flex; flex-direction: column; gap: 6px; }
-.field-label {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text-secondary);
-  letter-spacing: 0.02em;
-}
+.field-label { font-size: 12px; font-weight: 500; color: var(--text-secondary); letter-spacing: 0.02em; }
 .field-hint { font-weight: 400; color: var(--text-hint); }
 .field-input {
   font-family: var(--mono);
@@ -133,14 +124,8 @@ body {
   width: 100%;
 }
 .field-textarea:focus { border-color: var(--accent); }
-.row-count {
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--text-hint);
-  text-align: right;
-}
+.row-count { font-family: var(--mono); font-size: 11px; color: var(--text-hint); text-align: right; }
 
-/* BUTTON */
 .btn-generate {
   background: var(--navy);
   color: #fff;
@@ -174,10 +159,8 @@ body {
 }
 .btn-copy:hover { background: #155ab5; }
 
-/* ERRORS */
 .error-msg { font-size: 12px; color: #c0392b; min-height: 16px; }
 
-/* EMPTY STATE */
 .empty-state {
   flex: 1;
   display: flex;
@@ -192,7 +175,7 @@ body {
 .empty-icon { font-size: 48px; opacity: 0.3; }
 .empty-state p { font-size: 13px; line-height: 1.7; }
 
-/* EMAIL PREVIEW */
+/* EMAIL PREVIEW — mimics a plain email client look */
 .email-preview {
   flex: 1;
   display: flex;
@@ -201,76 +184,68 @@ body {
   overflow-y: auto;
 }
 .preview-subject {
-  font-family: var(--mono);
-  font-size: 12px;
-  color: var(--text-secondary);
-  background: var(--bg);
-  padding: 8px 12px;
-  border-radius: 4px;
-  border-left: 3px solid var(--accent);
-  word-break: break-word;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
 }
 .preview-body {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  font-size: 13.5px;
+  gap: 12px;
+  font-size: 13px;
   line-height: 1.7;
-  color: var(--text-primary);
+  color: #000;
+  font-family: Arial, sans-serif;
 }
-.preview-table-wrap { display: flex; flex-direction: column; gap: 6px; }
-.preview-table-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--navy);
-}
-.preview-period { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+.preview-table-wrap { overflow-x: auto; }
 
+/* Plain black-border table — matches the screenshot exactly */
 .preview-table {
-  width: 100%;
   border-collapse: collapse;
   font-size: 13px;
+  font-family: Arial, sans-serif;
 }
-.preview-table thead tr { background: var(--navy); }
 .preview-table thead th {
-  color: #fff;
-  padding: 9px 12px;
-  text-align: left;
-  font-weight: 600;
-  font-size: 12px;
+  font-weight: bold;
+  padding: 5px 10px;
+  border: 1px solid #000;
+  text-align: center;
+  background: #fff;
+  white-space: nowrap;
 }
-.preview-table thead th.c { text-align: center; }
-.preview-table tbody tr:nth-child(even) td { background: #eef3fa; }
+.preview-table thead th:nth-child(2) { text-align: left; }
 .preview-table tbody td {
-  padding: 9px 12px;
-  border-bottom: 1px solid var(--border);
-  font-size: 13px;
+  padding: 4px 10px;
+  border: 1px solid #000;
+  text-align: center;
 }
+.preview-table tbody td.date-cell { text-align: left; white-space: nowrap; }
 .preview-table tbody td.c { text-align: center; }
-.preview-table tfoot tr { background: var(--navy); }
 .preview-table tfoot td {
-  color: #fff;
-  padding: 9px 12px;
-  font-weight: 600;
-  font-size: 13px;
+  font-weight: bold;
+  padding: 4px 10px;
+  border: 1px solid #000;
+  text-align: center;
 }
-.preview-table tfoot td.c { text-align: center; }
+.preview-table tfoot td.total-label { text-align: center; }
 
 .preview-regards {
   font-size: 13px;
   line-height: 1.9;
-  color: var(--text-primary);
+  color: #000;
   border-top: 1px solid var(--border);
   padding-top: 14px;
+  font-family: Arial, sans-serif;
 }
-.sig-company { color: var(--navy); font-weight: 600; }
+.sig-company { font-weight: bold; }
 
 @media (max-width: 800px) {
   .app-main { grid-template-columns: 1fr; padding: 16px; }
   .app-header { padding: 0 16px; }
 }
 
-/* FOOTER */
 .app-footer {
   text-align: center;
   padding: 16px;

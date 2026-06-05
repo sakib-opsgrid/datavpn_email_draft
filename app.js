@@ -1,5 +1,4 @@
 const OPS = ['Grameenphone', 'Robi', 'Teletalk', 'Banglalink'];
-const OP_SHORT = { Grameenphone: 'GP', Robi: 'RB', Teletalk: 'TT', Banglalink: 'BL' };
 
 document.getElementById('rawData').addEventListener('input', updateFromData);
 
@@ -12,14 +11,10 @@ function updateFromData() {
   }
   const rows = parseData(text);
   document.getElementById('rowCount').textContent = `${rows.length} rows detected`;
-
   if (rows.length > 0) {
-    // Get date range directly from data
     const dates = rows.map(r => r.date).sort();
-    const startStr = dates[0];
-    const endStr = dates[dates.length - 1];
     document.getElementById('dateRangeDisplay').textContent =
-      `Data period: ${fmtDate(startStr)} – ${fmtDate(endStr)}`;
+      `Data period: ${fmtDate(dates[0])} – ${fmtDate(dates[dates.length - 1])}`;
   }
 }
 
@@ -29,12 +24,10 @@ function fmtDate(d) {
   return `${parseInt(day)} ${months[parseInt(m) - 1]} ${y}`;
 }
 
-function remark(avg) {
-  const f = Math.floor(avg);
-  if (f <= 2) return 'Normal';
-  if (f <= 4) return 'Higher than Normal';
-  if (f <= 6) return 'Moderately Higher than Normal';
-  return 'Significantly Higher than Normal';
+function fmtDateShort(d) {
+  const [y, m, day] = d.split('-');
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${parseInt(day).toString().padStart(2,'0')} -${months[parseInt(m)-1]}-${y}`;
 }
 
 function parseData(text) {
@@ -62,40 +55,36 @@ function generate() {
   const rows = parseData(rawText);
   if (!rows.length) { errEl.textContent = 'No valid rows found. Check format: date TAB operator.'; return; }
 
-  // Date range from data itself
-  const dates = rows.map(r => r.date).sort();
-  const startStr = dates[0];
-  const endStr = dates[dates.length - 1];
+  const allDatesSet = new Set(rows.map(r => r.date));
+  const displayDates = [...allDatesSet].sort().reverse().slice(0, 15);
 
-  // Build per-operator stats (blank days excluded)
-  const opDays = {};
-  const opHits = {};
-  OPS.forEach(op => { opDays[op] = new Set(); opHits[op] = 0; });
-
+  const dateCounts = {};
+  displayDates.forEach(d => {
+    dateCounts[d] = {};
+    OPS.forEach(op => dateCounts[d][op] = 0);
+  });
   rows.forEach(({ date, op }) => {
-    opDays[op].add(date);
-    opHits[op]++;
+    if (dateCounts[date]) dateCounts[date][op]++;
   });
 
-  const stats = OPS.map(op => {
-    const total = opHits[op];
-    const days = opDays[op].size;
-    const avg = days > 0 ? total / days : 0;
-    return {
-      name: `${op} (${OP_SHORT[op]})`,
-      total,
-      avg: avg.toFixed(1),
-      remark: remark(avg)
-    };
+  const tableRows = displayDates.map((date, idx) => {
+    const bl = dateCounts[date]['Banglalink'];
+    const gp = dateCounts[date]['Grameenphone'];
+    const rb = dateCounts[date]['Robi'];
+    const tt = dateCounts[date]['Teletalk'];
+    return { dn: idx + 1, date, bl, gp, rb, tt, tod: bl + gp + rb + tt };
   });
 
-  // Grand total
-  const allDates = new Set(rows.map(r => r.date));
-  const grandTotal = stats.reduce((s, o) => s + o.total, 0);
-  const grandAvg = allDates.size > 0 ? grandTotal / allDates.size : 0;
+  const totals = {
+    bl: tableRows.reduce((s, r) => s + r.bl, 0),
+    gp: tableRows.reduce((s, r) => s + r.gp, 0),
+    rb: tableRows.reduce((s, r) => s + r.rb, 0),
+    tt: tableRows.reduce((s, r) => s + r.tt, 0),
+    tod: tableRows.reduce((s, r) => s + r.tod, 0),
+  };
 
-  renderPreview({ stats, grandTotal, grandAvg, startStr, endStr, senderName });
-  buildCopySource({ stats, grandTotal, grandAvg, startStr, endStr, senderName });
+  renderPreview({ tableRows, totals, senderName });
+  buildCopySource({ tableRows, totals, senderName });
 
   document.getElementById('emptyState').style.display = 'none';
   document.getElementById('emailPreview').style.display = 'flex';
@@ -103,81 +92,103 @@ function generate() {
   document.getElementById('sigName').textContent = senderName;
 }
 
-function renderPreview({ stats, grandTotal, grandAvg, startStr, endStr, senderName }) {
-  const subj = `DATA VPN (P2P) Health Summary | Last 15 Days (${fmtDate(startStr)} – ${fmtDate(endStr)})`;
-  document.getElementById('previewSubject').textContent = 'Subject: ' + subj;
+function renderPreview({ tableRows, totals, senderName }) {
+  document.getElementById('previewSubject').textContent = 'Subject: MNO-wise P2P (DataVPN) interruption record';
   document.getElementById('previewIntro').textContent =
-    `Please find below the Network Fluctuation (P2P / DATA VPN) Health Summary for the last 15 days (${fmtDate(startStr)} – ${fmtDate(endStr)}).`;
-  document.getElementById('previewTableTitle').textContent = 'Network (P2P / DATA VPN) — MNO Health Summary';
-  document.getElementById('previewPeriod').textContent = `Period: ${fmtDate(startStr)} – ${fmtDate(endStr)}`;
+    'Please find the MNO-wise P2P (DataVPN) interruption record for the last 15 days.';
   document.getElementById('sigName').textContent = senderName;
 
   const table = document.getElementById('previewTable');
   table.innerHTML = `
     <thead>
       <tr>
-        <th>Operator</th>
-        <th class="c">Total Hits</th>
-        <th class="c">Daily Avg</th>
-        <th>Remark</th>
+        <th class="c">D - n</th>
+        <th>DATE</th>
+        <th class="c">Banglalink</th>
+        <th class="c">Grameenphone</th>
+        <th class="c">Robi</th>
+        <th class="c">Teletalk</th>
+        <th class="c">TOD</th>
       </tr>
     </thead>
     <tbody>
-      ${stats.map(s => `
+      ${tableRows.map(r => `
         <tr>
-          <td>${s.name}</td>
-          <td class="c">${s.total}</td>
-          <td class="c">${s.avg}</td>
-          <td>${s.remark}</td>
+          <td class="c">${r.dn}</td>
+          <td class="date-cell">${fmtDateShort(r.date)}</td>
+          <td class="c">${r.bl}</td>
+          <td class="c">${r.gp}</td>
+          <td class="c">${r.rb}</td>
+          <td class="c">${r.tt}</td>
+          <td class="c">${r.tod}</td>
         </tr>`).join('')}
     </tbody>
     <tfoot>
       <tr>
-        <td>Total</td>
-        <td class="c">${grandTotal}</td>
-        <td class="c">${grandAvg.toFixed(1)}</td>
-        <td>${remark(grandAvg)}</td>
+        <td colspan="2" class="total-label">Total</td>
+        <td class="c">${totals.bl}</td>
+        <td class="c">${totals.gp}</td>
+        <td class="c">${totals.rb}</td>
+        <td class="c">${totals.tt}</td>
+        <td class="c">${totals.tod}</td>
       </tr>
     </tfoot>`;
 }
 
-function buildCopySource({ stats, grandTotal, grandAvg, startStr, endStr, senderName }) {
-  const fs = 'font-family:Arial,sans-serif;font-size:12pt;';
+function buildCopySource({ tableRows, totals, senderName }) {
+  const fs = 'font-family:Arial,sans-serif;font-size:11pt;';
+  const b = '1px solid #000';
+  const thTd = (val, extra) =>
+    `<td style="${fs}font-weight:bold;padding:4px 10px;border:${b};text-align:${extra||'center'};background:#fff;">${val}</td>`;
+  const td = (val, align) =>
+    `<td style="${fs}padding:4px 10px;border:${b};text-align:${align||'center'};">${val}</td>`;
+  const tfTd = (val, span) =>
+    `<td ${span?`colspan="${span}"`:''} style="${fs}font-weight:bold;padding:4px 10px;border:${b};text-align:center;">${val}</td>`;
+
+  const bodyRows = tableRows.map(r =>
+    `<tr>
+      ${td(r.dn)}
+      ${td(fmtDateShort(r.date), 'left')}
+      ${td(r.bl)}
+      ${td(r.gp)}
+      ${td(r.rb)}
+      ${td(r.tt)}
+      ${td(r.tod)}
+    </tr>`
+  ).join('');
+
   const html = `
-<div style="${fs}color:#000;line-height:1.7;">
-  <p style="margin:0 0 12px;${fs}">Dear Concerned,</p>
-  <p style="margin:0 0 20px;${fs}">Please find below the Network Fluctuation (P2P / DATA VPN) Health Summary for the last 15 days (${fmtDate(startStr)} – ${fmtDate(endStr)}).</p>
-  <p style="margin:0 0 4px;${fs}font-weight:bold;color:#003366;">Network (P2P / DATA VPN) — MNO Health Summary</p>
-  <p style="margin:0 0 12px;${fs}color:#555;">Period: ${fmtDate(startStr)} – ${fmtDate(endStr)}</p>
-  <table style="border-collapse:collapse;width:100%;max-width:680px;">
+<div style="${fs}color:#000;line-height:1.6;">
+  <p style="margin:0 0 10px;${fs}">Dear Concerned,</p>
+  <p style="margin:0 0 16px;${fs}">Please find the MNO-wise P2P (DataVPN) interruption record for the last 15 days.</p>
+  <table style="border-collapse:collapse;width:auto;">
     <thead>
-      <tr style="background:#003366;">
-        <th style="${fs}color:#fff;padding:9px 12px;text-align:left;border:1px solid #003366;">Operator</th>
-        <th style="${fs}color:#fff;padding:9px 12px;text-align:center;border:1px solid #003366;">Total Hits</th>
-        <th style="${fs}color:#fff;padding:9px 12px;text-align:center;border:1px solid #003366;">Daily Avg</th>
-        <th style="${fs}color:#fff;padding:9px 12px;text-align:left;border:1px solid #003366;">Remark</th>
+      <tr>
+        ${thTd('D - n')}
+        ${thTd('DATE', 'left')}
+        ${thTd('Banglalink')}
+        ${thTd('Grameenphone')}
+        ${thTd('Robi')}
+        ${thTd('Teletalk')}
+        ${thTd('TOD')}
       </tr>
     </thead>
-    <tbody>
-      ${stats.map((s, i) => `
-      <tr style="background:${i % 2 === 1 ? '#eef3fa' : '#ffffff'};">
-        <td style="${fs}padding:9px 12px;border:1px solid #ddd;">${s.name}</td>
-        <td style="${fs}padding:9px 12px;border:1px solid #ddd;text-align:center;">${s.total}</td>
-        <td style="${fs}padding:9px 12px;border:1px solid #ddd;text-align:center;">${s.avg}</td>
-        <td style="${fs}padding:9px 12px;border:1px solid #ddd;">${s.remark}</td>
-      </tr>`).join('')}
-      <tr style="background:#003366;">
-        <td style="${fs}padding:9px 12px;color:#fff;font-weight:bold;border:1px solid #003366;">Total</td>
-        <td style="${fs}padding:9px 12px;color:#fff;font-weight:bold;border:1px solid #003366;text-align:center;">${grandTotal}</td>
-        <td style="${fs}padding:9px 12px;color:#fff;font-weight:bold;border:1px solid #003366;text-align:center;">${grandAvg.toFixed(1)}</td>
-        <td style="${fs}padding:9px 12px;color:#fff;font-weight:bold;border:1px solid #003366;">${remark(grandAvg)}</td>
+    <tbody>${bodyRows}</tbody>
+    <tfoot>
+      <tr>
+        ${tfTd('Total', 2)}
+        ${tfTd(totals.bl)}
+        ${tfTd(totals.gp)}
+        ${tfTd(totals.rb)}
+        ${tfTd(totals.tt)}
+        ${tfTd(totals.tod)}
       </tr>
-    </tbody>
+    </tfoot>
   </table>
-  <p style="margin:28px 0 0;${fs}">Best Regards,</p>
-  <p style="margin:16px 0 0;${fs}font-weight:bold;">${senderName}</p>
+  <p style="margin:24px 0 0;${fs}">Best Regards,</p>
+  <p style="margin:14px 0 0;${fs}font-weight:bold;">${senderName}</p>
   <p style="margin:0;${fs}font-weight:bold;">Senior Engineer, Service Assurance</p>
-  <p style="margin:0;${fs}font-weight:bold;color:#003366;">Infozillion Teletech BD Ltd.</p>
+  <p style="margin:0;${fs}font-weight:bold;">Infozillion Teletech BD Ltd.</p>
   <p style="margin:0;${fs}">Hosaf High Tower, 12th Floor,<br>9 Mohakhali C/A, Dhaka-1212, Bangladesh</p>
 </div>`;
   document.getElementById('copySource').innerHTML = html;
@@ -187,11 +198,7 @@ async function copyEmail() {
   const el = document.getElementById('copySource');
   try {
     const blob = new Blob([el.innerHTML], { type: 'text/html' });
-    const item = new ClipboardItem({ 'text/html': blob });
-    await navigator.clipboard.write([item]);
-    const btn = document.getElementById('btnCopy');
-    btn.textContent = '✓ Copied!';
-    setTimeout(() => btn.textContent = '⎘ Copy Email', 2000);
+    await navigator.clipboard.write([new ClipboardItem({ 'text/html': blob })]);
   } catch (e) {
     el.style.display = 'block';
     const range = document.createRange();
@@ -201,8 +208,8 @@ async function copyEmail() {
     document.execCommand('copy');
     window.getSelection().removeAllRanges();
     el.style.display = 'none';
-    const btn = document.getElementById('btnCopy');
-    btn.textContent = '✓ Copied!';
-    setTimeout(() => btn.textContent = '⎘ Copy Email', 2000);
   }
+  const btn = document.getElementById('btnCopy');
+  btn.textContent = '✓ Copied!';
+  setTimeout(() => btn.textContent = '⎘ Copy Email', 2000);
 }
