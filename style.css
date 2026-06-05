@@ -219,15 +219,15 @@ body {
 .preview-table tbody td {
   padding: 4px 10px;
   border: 1px solid #000;
-  text-align: center;
+  text-align: right;
 }
 .preview-table tbody td.date-cell { text-align: left; white-space: nowrap; }
-.preview-table tbody td.c { text-align: center; }
+.preview-table tbody td.c { text-align: right; }
 .preview-table tfoot td {
   font-weight: bold;
   padding: 4px 10px;
   border: 1px solid #000;
-  text-align: center;
+  text-align: right;
 }
 .preview-table tfoot td.total-label { text-align: center; }
 

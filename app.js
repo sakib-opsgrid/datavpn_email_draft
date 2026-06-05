@@ -136,24 +136,36 @@ function renderPreview({ tableRows, totals, senderName }) {
 }
 
 function buildCopySource({ tableRows, totals, senderName }) {
-  const fs = 'font-family:Arial,sans-serif;font-size:11pt;';
+  const fs = 'font-family:Arial,sans-serif;font-size:12pt;';
   const b = '1px solid #000';
-  const thTd = (val, extra) =>
-    `<td style="${fs}font-weight:bold;padding:4px 10px;border:${b};text-align:${extra||'center'};background:#fff;">${val}</td>`;
-  const td = (val, align) =>
-    `<td style="${fs}padding:4px 10px;border:${b};text-align:${align||'center'};">${val}</td>`;
-  const tfTd = (val, span) =>
-    `<td ${span?`colspan="${span}"`:''} style="${fs}font-weight:bold;padding:4px 10px;border:${b};text-align:center;">${val}</td>`;
+
+  // Header cells — bold, centered by default; pass align override for DATE
+  const thTd = (val, align) =>
+    `<td style="${fs}font-weight:bold;padding:4px 10px;border:${b};text-align:${align||'center'};background:#fff;white-space:nowrap;">${val}</td>`;
+
+  // D-n column: right-aligned number; DATE: left-aligned; numeric cols: right-aligned
+  const tdDn  = (val) =>
+    `<td style="${fs}padding:4px 10px;border:${b};text-align:right;">${val}</td>`;
+  const tdDate = (val) =>
+    `<td style="${fs}padding:4px 10px;border:${b};text-align:left;white-space:nowrap;">${val}</td>`;
+  const tdNum  = (val) =>
+    `<td style="${fs}padding:4px 10px;border:${b};text-align:right;">${val}</td>`;
+
+  // Footer cells — bold, right-aligned numbers; "Total" cell centered
+  const tfTotal = (span) =>
+    `<td colspan="${span}" style="${fs}font-weight:bold;padding:4px 10px;border:${b};text-align:center;">Total</td>`;
+  const tfNum = (val) =>
+    `<td style="${fs}font-weight:bold;padding:4px 10px;border:${b};text-align:right;">${val}</td>`;
 
   const bodyRows = tableRows.map(r =>
     `<tr>
-      ${td(r.dn)}
-      ${td(fmtDateShort(r.date), 'left')}
-      ${td(r.bl)}
-      ${td(r.gp)}
-      ${td(r.rb)}
-      ${td(r.tt)}
-      ${td(r.tod)}
+      ${tdDn(r.dn)}
+      ${tdDate(fmtDateShort(r.date))}
+      ${tdNum(r.bl)}
+      ${tdNum(r.gp)}
+      ${tdNum(r.rb)}
+      ${tdNum(r.tt)}
+      ${tdNum(r.tod)}
     </tr>`
   ).join('');
 
@@ -164,7 +176,7 @@ function buildCopySource({ tableRows, totals, senderName }) {
   <table style="border-collapse:collapse;width:auto;">
     <thead>
       <tr>
-        ${thTd('D - n')}
+        ${thTd('D - n', 'center')}
         ${thTd('DATE', 'left')}
         ${thTd('Banglalink')}
         ${thTd('Grameenphone')}
@@ -176,12 +188,12 @@ function buildCopySource({ tableRows, totals, senderName }) {
     <tbody>${bodyRows}</tbody>
     <tfoot>
       <tr>
-        ${tfTd('Total', 2)}
-        ${tfTd(totals.bl)}
-        ${tfTd(totals.gp)}
-        ${tfTd(totals.rb)}
-        ${tfTd(totals.tt)}
-        ${tfTd(totals.tod)}
+        ${tfTotal(2)}
+        ${tfNum(totals.bl)}
+        ${tfNum(totals.gp)}
+        ${tfNum(totals.rb)}
+        ${tfNum(totals.tt)}
+        ${tfNum(totals.tod)}
       </tr>
     </tfoot>
   </table>
