@@ -91,7 +91,7 @@ Hosaf High Tower, 12th Floor,
 # 3. Source: Deploy from branch → main → / (root)
 # 4. Save — your tool is live at:
 
-https://<your-username>.github.io/<repo-name>/
+https://sakib-opsgrid.github.io/datavpn_email_draft/
 ```
 
 ---
