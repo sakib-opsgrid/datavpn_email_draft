@@ -212,7 +212,8 @@ body {
   padding: 4px 10px;
   border: 1px solid #000;
   text-align: right;
-  background: #fff;
+  background: #f3f3f3;
+  color: #000;
   white-space: nowrap;
 }
 .preview-table thead th.th-left { text-align: left; }

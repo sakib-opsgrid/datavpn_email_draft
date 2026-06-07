@@ -132,7 +132,7 @@ function buildCopySource({ tableRows, senderName }) {
 
   // Header: bold, thin border, white bg — sheet style
   const th = (val, align) =>
-    `<td style="${fs}font-weight:bold;${pad}border:${b};text-align:${align};background:#fff;white-space:nowrap;">${val}</td>`;
+    `<td style="${fs}font-weight:bold;${pad}border:${b};text-align:${align};background:#f3f3f3;color:#000;white-space:nowrap;">${val}</td>`;
 
   // Body cells
   const tdR = (val) => `<td style="${fs}${pad}border:${b};text-align:right;">${val}</td>`;
