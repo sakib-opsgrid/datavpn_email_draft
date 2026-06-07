@@ -201,7 +201,7 @@ body {
 }
 .preview-table-wrap { overflow-x: auto; }
 
-/* Plain black-border table — matches the screenshot exactly */
+/* Plain black-border table — matches sheet exactly */
 .preview-table {
   border-collapse: collapse;
   font-size: 13px;
@@ -209,13 +209,14 @@ body {
 }
 .preview-table thead th {
   font-weight: bold;
-  padding: 5px 10px;
+  padding: 4px 10px;
   border: 1px solid #000;
-  text-align: center;
+  text-align: right;
   background: #fff;
   white-space: nowrap;
 }
-.preview-table thead th:nth-child(2) { text-align: left; }
+.preview-table thead th.th-left { text-align: left; }
+.preview-table thead th.th-right { text-align: right; }
 .preview-table tbody td {
   padding: 4px 10px;
   border: 1px solid #000;

@@ -84,7 +84,7 @@ function generate() {
   };
 
   renderPreview({ tableRows, totals, senderName });
-  buildCopySource({ tableRows, totals, senderName });
+  buildCopySource({ tableRows, senderName });
 
   document.getElementById('emptyState').style.display = 'none';
   document.getElementById('emailPreview').style.display = 'flex';
@@ -102,13 +102,13 @@ function renderPreview({ tableRows, totals, senderName }) {
   table.innerHTML = `
     <thead>
       <tr>
-        <th class="c">D - n</th>
-        <th>DATE</th>
-        <th class="c">Banglalink</th>
-        <th class="c">Grameenphone</th>
-        <th class="c">Robi</th>
-        <th class="c">Teletalk</th>
-        <th class="c">TOD</th>
+        <th class="th-right">D - n</th>
+        <th class="th-left">DATE</th>
+        <th class="th-right">Banglalink</th>
+        <th class="th-right">Grameenphone</th>
+        <th class="th-right">Robi</th>
+        <th class="th-right">Teletalk</th>
+        <th class="th-right">TOD</th>
       </tr>
     </thead>
     <tbody>
@@ -122,50 +122,31 @@ function renderPreview({ tableRows, totals, senderName }) {
           <td class="c">${r.tt}</td>
           <td class="c">${r.tod}</td>
         </tr>`).join('')}
-    </tbody>
-    <tfoot>
-      <tr>
-        <td colspan="2" class="total-label">Total</td>
-        <td class="c">${totals.bl}</td>
-        <td class="c">${totals.gp}</td>
-        <td class="c">${totals.rb}</td>
-        <td class="c">${totals.tt}</td>
-        <td class="c">${totals.tod}</td>
-      </tr>
-    </tfoot>`;
+    </tbody>`;
 }
 
-function buildCopySource({ tableRows, totals, senderName }) {
+function buildCopySource({ tableRows, senderName }) {
   const fs = 'font-family:Arial,sans-serif;font-size:12pt;';
   const b = '1px solid #000';
+  const pad = 'padding:4px 10px;';
 
-  // Header cells — bold, centered by default; pass align override for DATE
-  const thTd = (val, align) =>
-    `<td style="${fs}font-weight:bold;padding:4px 10px;border:${b};text-align:${align||'center'};background:#fff;white-space:nowrap;">${val}</td>`;
+  // Header: bold, thin border, white bg — sheet style
+  const th = (val, align) =>
+    `<td style="${fs}font-weight:bold;${pad}border:${b};text-align:${align};background:#fff;white-space:nowrap;">${val}</td>`;
 
-  // D-n column: right-aligned number; DATE: left-aligned; numeric cols: right-aligned
-  const tdDn  = (val) =>
-    `<td style="${fs}padding:4px 10px;border:${b};text-align:right;">${val}</td>`;
-  const tdDate = (val) =>
-    `<td style="${fs}padding:4px 10px;border:${b};text-align:left;white-space:nowrap;">${val}</td>`;
-  const tdNum  = (val) =>
-    `<td style="${fs}padding:4px 10px;border:${b};text-align:right;">${val}</td>`;
-
-  // Footer cells — bold, right-aligned numbers; "Total" cell centered
-  const tfTotal = (span) =>
-    `<td colspan="${span}" style="${fs}font-weight:bold;padding:4px 10px;border:${b};text-align:center;">Total</td>`;
-  const tfNum = (val) =>
-    `<td style="${fs}font-weight:bold;padding:4px 10px;border:${b};text-align:right;">${val}</td>`;
+  // Body cells
+  const tdR = (val) => `<td style="${fs}${pad}border:${b};text-align:right;">${val}</td>`;
+  const tdL = (val) => `<td style="${fs}${pad}border:${b};text-align:left;white-space:nowrap;">${val}</td>`;
 
   const bodyRows = tableRows.map(r =>
     `<tr>
-      ${tdDn(r.dn)}
-      ${tdDate(fmtDateShort(r.date))}
-      ${tdNum(r.bl)}
-      ${tdNum(r.gp)}
-      ${tdNum(r.rb)}
-      ${tdNum(r.tt)}
-      ${tdNum(r.tod)}
+      ${tdR(r.dn)}
+      ${tdL(fmtDateShort(r.date))}
+      ${tdR(r.bl)}
+      ${tdR(r.gp)}
+      ${tdR(r.rb)}
+      ${tdR(r.tt)}
+      ${tdR(r.tod)}
     </tr>`
   ).join('');
 
@@ -176,26 +157,16 @@ function buildCopySource({ tableRows, totals, senderName }) {
   <table style="border-collapse:collapse;width:auto;">
     <thead>
       <tr>
-        ${thTd('D - n', 'center')}
-        ${thTd('DATE', 'left')}
-        ${thTd('Banglalink')}
-        ${thTd('Grameenphone')}
-        ${thTd('Robi')}
-        ${thTd('Teletalk')}
-        ${thTd('TOD')}
+        ${th('D - n', 'right')}
+        ${th('DATE', 'left')}
+        ${th('Banglalink', 'right')}
+        ${th('Grameenphone', 'right')}
+        ${th('Robi', 'right')}
+        ${th('Teletalk', 'right')}
+        ${th('TOD', 'right')}
       </tr>
     </thead>
     <tbody>${bodyRows}</tbody>
-    <tfoot>
-      <tr>
-        ${tfTotal(2)}
-        ${tfNum(totals.bl)}
-        ${tfNum(totals.gp)}
-        ${tfNum(totals.rb)}
-        ${tfNum(totals.tt)}
-        ${tfNum(totals.tod)}
-      </tr>
-    </tfoot>
   </table>
   <p style="margin:24px 0 0;${fs}">Best Regards,</p>
   <p style="margin:14px 0 0;${fs}font-weight:bold;">${senderName}</p>
